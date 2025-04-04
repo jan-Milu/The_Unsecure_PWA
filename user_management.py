@@ -1,15 +1,29 @@
 import sqlite3 as sql
 import time
 import random
+import string
 
+def validatePassword(password):
+    if len(password) > 7:
+        if (any(c in string.digits) and 
+            any(c in string.punctuation) and 
+            any(c.isupper()) and
+            any(c.uslower()) for c in password):
+
+            return True
+        
+    return False
 
 def insertUser(username, password, DoB):
     con = sql.connect("database_files/database.db")
     cur = con.cursor()
-    cur.execute(
-        "INSERT INTO users (username,password,dateOfBirth) VALUES (?,?,?)",
-        (username, password, DoB),
-    )
+    cur.execute(f"SELECT * FROM users WHERE username = '{username}'")
+    if cur.fetchone() == None:
+        if validatePassword(password):
+            cur.execute(
+                "INSERT INTO users (username,password,dateOfBirth) VALUES (?,?,?)",
+                (username, password, DoB),
+            )
     con.commit()
     con.close()
 
